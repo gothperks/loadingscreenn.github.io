@@ -30,16 +30,31 @@
     <div class="gmod-status">
         <!-- Контейнер для статуса с поддержкой точек -->
         <div id="status-box" class="dots-disabled"><span id="status"></span></div>
-        <!-- Карта и аддоны с эффектом чистой печати -->
+        <!-- Карта и аддоны -->
         <div id="map"></div>
     </div>
 
     <script>
+        var audio = document.getElementById('loading-music');
+        var btn = document.getElementById('mute-btn');
+
+        // Обход блокировки автоплея: музыка включится, как только игрок сдвинет мышь в окне GMod
+        function initAudioAutoplay() {
+            if (audio) {
+                audio.play().then(function() {
+                    window.removeEventListener('mousemove', initAudioAutoplay);
+                }).catch(function(e) {
+                    console.log("Автоплей заблокирован, ждем движения мыши...");
+                });
+            }
+        }
+        window.addEventListener('mousemove', initAudioAutoplay);
+
         function toggleMusic() {
-            var audio = document.getElementById('loading-music');
-            var btn = document.getElementById('mute-btn');
+            if (!audio) return;
             if (audio.muted) {
                 audio.muted = false;
+                audio.play();
                 btn.classList.remove('muted');
             } else {
                 audio.muted = true;
@@ -48,62 +63,58 @@
         }
 
         var mapTimer = null;
-        var statusTimer = null;
 
-        // Универсальный эффект печати
-        function typeWriterEffect(element, text, timerVar, speed, callback) {
+        // Эффект печати оставляем ТОЛЬКО для карты и файлов (они меняются реже)
+        function typeWriterEffect(element, text, speed) {
             if (element.getAttribute('data-current-text') === text) return;
             element.setAttribute('data-current-text', text);
             
-            if (timerVar === 'map') clearInterval(mapTimer);
-            if (timerVar === 'status') clearInterval(statusTimer);
+            clearInterval(mapTimer);
             element.innerHTML = ""; 
             
             var i = 0;
-            var t = setInterval(function() {
+            mapTimer = setInterval(function() {
                 if (i < text.length) {
                     element.innerHTML += text.charAt(i);
                     i++;
                 } else {
-                    if (timerVar === 'map') clearInterval(mapTimer);
-                    if (timerVar === 'status') clearInterval(statusTimer);
-                    if (callback) callback();
+                    clearInterval(mapTimer);
                 }
             }, speed);
-
-            if (timerVar === 'map') mapTimer = t;
-            if (timerVar === 'status') statusTimer = t;
         }
 
-        // ПРИ ЗАХОДЕ НА САЙТ: Сначала всё пропечатывается
+        // ПРИ ЗАХОДЕ: Мгновенно пишем стартовый статус
         window.onload = function() {
-            // Печатаем верхнюю строчку
-            typeWriterEffect(document.getElementById('status'), "Подключение к серверу", 'status', 20, function() {
-                // Как только она напечаталась — включаем ей бегущие CSS-точки
-                document.getElementById('status-box').className = "dots-enabled";
-            });
-
-            // Печатаем нижнюю строчку по умолчанию
-            typeWriterEffect(document.getElementById('map'), "Загрузка карты", 'map', 25);
+            document.getElementById('status').innerHTML = "Подключение к серверу";
+            document.getElementById('status-box').className = "dots-enabled";
+            typeWriterEffect(document.getElementById('map'), "Загрузка карты...", 25);
         };
 
+        // Вызывается игрой ОДИН раз при старте
         function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume) {
-            typeWriterEffect(document.getElementById('map'), "Карта: " + mapname, 'map', 15);
-            var audio = document.getElementById('loading-music');
+            typeWriterEffect(document.getElementById('map'), "Карта: " + mapname, 15);
             if (audio && volume !== undefined) {
                 audio.volume = volume; 
             }
         }
         
+        // Вызывается игрой ОЧЕНЬ часто. Никакой анимации печати тут быть не должно!
         function SetStatusChanged(status) {
-            document.getElementById('status-box').className = "dots-enabled";
-            document.getElementById('status').innerHTML = status;
+            var statusElem = document.getElementById('status');
+            if (statusElem.innerHTML !== status) {
+                document.getElementById('status-box').className = "dots-enabled";
+                statusElem.innerHTML = status;
+            }
         }
         
+        // Вызывается при скачивании аддонов
         function DownloadingFile(filename) {
             document.getElementById('status-box').className = "dots-enabled";
             document.getElementById('status').innerHTML = "Загрузка контента";
-            typeWriterEffect(document.getElementById('map'), filename, 'map', 12);
+            
+            // Отрезаем лишний путь, чтобы выводить только чистое имя файла .gma
+            var cleanName = filename.replace(/^downloads\//, "").replace(/"/g, "");
+            typeWriterEffect(document.getElementById('map'), "Скачивание: " + cleanName, 10);
         }
     </script>
 </body>
