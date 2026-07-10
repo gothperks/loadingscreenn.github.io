@@ -77,34 +77,17 @@ body {
     color: #ffffff;
 }
 
-/* ЭФФЕКТ ТРЕХ ТОЧЕК (Финальное исправление: точки прижаты прямо к тексту) */
+/* ЭФФЕКТ ТРЕХ ТОЧЕК (Исправлено: точки идут строго в строку с текстом) */
 .dots-enabled {
-    display: inline; /* Теперь блок точно равен длине самого текста */
+    display: inline; 
 }
 
 .dots-enabled::after {
     content: '';
-    display: inline-block; /* Позволяет точкам идти сразу за последней буквой */
-    width: 24px; /* Резервируем фиксированное место под 3 точки справа, чтобы текст не дёргался */
+    display: inline-block; 
+    width: 24px; /* Место под точки, чтобы текст по центру не дергался */
     text-align: left;
-    margin-left: 2px; /* Минимальный красивый отступ от буквы "у" */
-    animation: loadingDots 1.5s steps(4, end) infinite;
-}
-
-.dots-disabled::after {
-    content: '';
-}
-
-}
-
-.dots-enabled::after {
-    content: '';
-    position: absolute;
-    left: 100%; /* Ставит точки сразу после последней буквы текста */
-    bottom: 0;
-    width: auto;
-    white-space: nowrap; /* Точки не будут переноситься на новую строку */
-    text-align: left;
+    margin-left: 2px; /* Маленький аккуратный отступ от букв */
     animation: loadingDots 1.5s steps(4, end) infinite;
 }
 
