@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Localka-Box Loading Screen</title>
-    <!-- Версия v=4 для полной очистки кэша игры -->
-    <link rel="stylesheet" href="style.css?v=4">
+    <!-- Версия v=6 для сброса кэша игры -->
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -80,6 +80,7 @@
             }, speed);
         }
 
+        // ИСПРАВЛЕНО: Убрали класс dots-enabled, который запускал анимацию
         window.onload = function() {
             document.getElementById('status').innerHTML = "Подключение к серверу";
             typeWriterEffect(document.getElementById('map'), "Загрузка карты", 25);
@@ -94,8 +95,10 @@
         
         function SetStatusChanged(status) {
             var statusElem = document.getElementById('status');
-            if (statusElem.innerHTML !== status) {
-                statusElem.innerHTML = status;
+            var cleanStatus = status.replace(/\.+$/, "");
+            
+            if (statusElem.innerHTML !== cleanStatus) {
+                statusElem.innerHTML = cleanStatus;
             }
         }
         
