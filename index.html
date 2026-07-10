@@ -64,7 +64,7 @@
 
         var mapTimer = null;
 
-        // Эффект печати для названий карт и файлов
+        // Эффект печати (оставлен ТОЛЬКО для плавного появления названия карты при старте)
         function typeWriterEffect(element, text, speed) {
             if (element.getAttribute('data-current-text') === text) return;
             element.setAttribute('data-current-text', text);
@@ -83,14 +83,14 @@
             }, speed);
         }
 
-        // Стартовое состояние (точки убраны из текста, за них отвечает CSS)
+        // Стартовое состояние при заходе
         window.onload = function() {
             document.getElementById('status').innerHTML = "Подключение к серверу";
             document.getElementById('status-box').className = "dots-enabled";
             typeWriterEffect(document.getElementById('map'), "Загрузка карты", 25);
         };
 
-        // Автоматически вызывается Garry's Mod
+        // Автоматически вызывается Garry's Mod при старте
         function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume) {
             typeWriterEffect(document.getElementById('map'), "Карта: " + mapname, 15);
             if (audio && volume !== undefined) {
@@ -107,13 +107,17 @@
             }
         }
         
-        // Отображение скачиваемых файлов
+        // ИСПРАВЛЕНО: Отображение файлов теперь мгновенное, без ломающегося эффекта печати
         function DownloadingFile(filename) {
             document.getElementById('status-box').className = "dots-enabled";
             document.getElementById('status').innerHTML = "Загрузка контента";
             
             var cleanName = filename.replace(/^downloads\//, "").replace(/"/g, "");
-            typeWriterEffect(document.getElementById('map'), "Скачивание: " + cleanName, 10);
+            var mapElem = document.getElementById('map');
+            
+            mapElem.setAttribute('data-current-text', "Скачивание: " + cleanName);
+            clearInterval(mapTimer); 
+            mapElem.innerHTML = "Скачивание: " + cleanName;
         }
     </script>
 </body>
