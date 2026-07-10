@@ -77,10 +77,24 @@ body {
     color: #ffffff;
 }
 
-/* ЭФФЕКТ ТРЕХ ТОЧЕК (Исправлено: точки стоят вплотную к тексту и не прыгают) */
+/* ЭФФЕКТ ТРЕХ ТОЧЕК (Финальное исправление: точки прижаты прямо к тексту) */
 .dots-enabled {
-    position: relative;
-    display: inline-block;
+    display: inline; /* Теперь блок точно равен длине самого текста */
+}
+
+.dots-enabled::after {
+    content: '';
+    display: inline-block; /* Позволяет точкам идти сразу за последней буквой */
+    width: 24px; /* Резервируем фиксированное место под 3 точки справа, чтобы текст не дёргался */
+    text-align: left;
+    margin-left: 2px; /* Минимальный красивый отступ от буквы "у" */
+    animation: loadingDots 1.5s steps(4, end) infinite;
+}
+
+.dots-disabled::after {
+    content: '';
+}
+
 }
 
 .dots-enabled::after {
