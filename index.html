@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Localka-Box Loading Screen</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Добавили ?v=2 для принудительного сброса кэша -->
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -107,7 +108,7 @@
             }
         }
         
-        // ИСПРАВЛЕНО: Отображение файлов теперь мгновенное, без ломающегося эффекта печати
+        // Отображение файлов теперь мгновенное, без ломающегося эффекта печати
         function DownloadingFile(filename) {
             document.getElementById('status-box').className = "dots-enabled";
             document.getElementById('status').innerHTML = "Загрузка контента";
