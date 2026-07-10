@@ -77,24 +77,6 @@ body {
     color: #ffffff;
 }
 
-/* ЭФФЕКТ ТРЕХ ТОЧЕК (Исправлено: точки идут строго в строку с текстом) */
-.dots-enabled {
-    display: inline; 
-}
-
-.dots-enabled::after {
-    content: '';
-    display: inline-block; 
-    width: 24px; /* Место под точки, чтобы текст по центру не дергался */
-    text-align: left;
-    margin-left: 2px; /* Маленький аккуратный отступ от букв */
-    animation: loadingDots 1.5s steps(4, end) infinite;
-}
-
-.dots-disabled::after {
-    content: '';
-}
-
 /* ПОЛУПРОЗРАЧНАЯ КНОПКА МУЗЫКИ В УГЛУ */
 #mute-btn {
     position: absolute;
@@ -152,16 +134,7 @@ body {
 
 /* --- ВСЕ АНИМАЦИИ --- */
 
-/* 1. Анимация бегущих точек загрузки */
-@keyframes loadingDots {
-    0%   { content: ''; }
-    25%  { content: '.'; }
-    50%  { content: '..'; }
-    75%  { content: '...'; }
-    100% { content: ''; }
-}
-
-/* 2. ОБЩАЯ АНИМАЦИЯ: Плавное проявление из размытия для логотипа и для нижнего текста */
+/* ОБЩАЯ АНИМАЦИЯ: Плавное проявление из размытия для логотипа и для нижнего текста */
 @keyframes mainBlockFadeIn {
     0% {
         opacity: 0;
