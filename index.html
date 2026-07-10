@@ -38,7 +38,7 @@
         var audio = document.getElementById('loading-music');
         var btn = document.getElementById('mute-btn');
 
-        // Обход блокировки автоплея: музыка включится, как только игрок сдвинет мышь в окне GMod
+        // Обход блокировки автоплея в Chromium: музыка включится при первом движении мыши в GMod
         function initAudioAutoplay() {
             if (audio) {
                 audio.play().then(function() {
@@ -64,7 +64,7 @@
 
         var mapTimer = null;
 
-        // Эффект печати оставляем ТОЛЬКО для карты и файлов (они меняются реже)
+        // Эффект печати для названий карт и файлов
         function typeWriterEffect(element, text, speed) {
             if (element.getAttribute('data-current-text') === text) return;
             element.setAttribute('data-current-text', text);
@@ -83,14 +83,14 @@
             }, speed);
         }
 
-        // ПРИ ЗАХОДЕ: Мгновенно пишем стартовый статус
+        // Стартовое состояние (точки убраны из текста, за них отвечает CSS)
         window.onload = function() {
             document.getElementById('status').innerHTML = "Подключение к серверу";
             document.getElementById('status-box').className = "dots-enabled";
-            typeWriterEffect(document.getElementById('map'), "Загрузка карты...", 25);
+            typeWriterEffect(document.getElementById('map'), "Загрузка карты", 25);
         };
 
-        // Вызывается игрой ОДИН раз при старте
+        // Автоматически вызывается Garry's Mod
         function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume) {
             typeWriterEffect(document.getElementById('map'), "Карта: " + mapname, 15);
             if (audio && volume !== undefined) {
@@ -98,7 +98,7 @@
             }
         }
         
-        // Вызывается игрой ОЧЕНЬ часто. Никакой анимации печати тут быть не должно!
+        // Быстрое обновление статуса (без ломающих анимаций)
         function SetStatusChanged(status) {
             var statusElem = document.getElementById('status');
             if (statusElem.innerHTML !== status) {
@@ -107,12 +107,11 @@
             }
         }
         
-        // Вызывается при скачивании аддонов
+        // Отображение скачиваемых файлов
         function DownloadingFile(filename) {
             document.getElementById('status-box').className = "dots-enabled";
             document.getElementById('status').innerHTML = "Загрузка контента";
             
-            // Отрезаем лишний путь, чтобы выводить только чистое имя файла .gma
             var cleanName = filename.replace(/^downloads\//, "").replace(/"/g, "");
             typeWriterEffect(document.getElementById('map'), "Скачивание: " + cleanName, 10);
         }
