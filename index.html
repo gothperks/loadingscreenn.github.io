@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Localka-Box Loading Screen</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Фоновая музыка -->
+    <audio id="loading-music" src="scp.mp3" autoplay loop></audio>
+
+    <!-- Современная интерактивная кнопка звука -->
+    <button id="mute-btn" onclick="toggleMusic()" title="Включить/Выключить звук">
+        <svg id="sound-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+            <path class="sound-wave wave-1" d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path class="sound-wave wave-2" d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+    </button>
+
+    <!-- Главный блок строго по центру экрана -->
+    <div class="main-center-block">
+        <h1 class="server-title">Localka-Box</h1>
+        <img class="server-logo" src="lcb.png" alt="Logo">
+    </div>
+
+    <!-- Тексты загрузки от Garry's Mod внизу экрана -->
+    <div class="gmod-status">
+        <!-- Контейнер для статуса с поддержкой точек -->
+        <div id="status-box" class="dots-disabled"><span id="status"></span></div>
+        <!-- Карта и аддоны с эффектом чистой печати -->
+        <div id="map"></div>
+    </div>
+
+    <script>
+        function toggleMusic() {
+            var audio = document.getElementById('loading-music');
+            var btn = document.getElementById('mute-btn');
+            if (audio.muted) {
+                audio.muted = false;
+                btn.classList.remove('muted');
+            } else {
+                audio.muted = true;
+                btn.classList.add('muted');
+            }
+        }
+
+        var mapTimer = null;
+        var statusTimer = null;
+
+        // Универсальный эффект печати
+        function typeWriterEffect(element, text, timerVar, speed, callback) {
+            if (element.getAttribute('data-current-text') === text) return;
+            element.setAttribute('data-current-text', text);
+            
+            if (timerVar === 'map') clearInterval(mapTimer);
+            if (timerVar === 'status') clearInterval(statusTimer);
+            element.innerHTML = ""; 
+            
+            var i = 0;
+            var t = setInterval(function() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                } else {
+                    if (timerVar === 'map') clearInterval(mapTimer);
+                    if (timerVar === 'status') clearInterval(statusTimer);
+                    if (callback) callback();
+                }
+            }, speed);
+
+            if (timerVar === 'map') mapTimer = t;
+            if (timerVar === 'status') statusTimer = t;
+        }
+
+        // ПРИ ЗАХОДЕ НА САЙТ: Сначала всё пропечатывается
+        window.onload = function() {
+            // Печатаем верхнюю строчку
+            typeWriterEffect(document.getElementById('status'), "Подключение к серверу", 'status', 20, function() {
+                // Как только она напечаталась — включаем ей бегущие CSS-точки
+                document.getElementById('status-box').className = "dots-enabled";
+            });
+
+            // Печатаем нижнюю строчку по умолчанию
+            typeWriterEffect(document.getElementById('map'), "Загрузка карты", 'map', 25);
+        };
+
+        function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume) {
+            typeWriterEffect(document.getElementById('map'), "Карта: " + mapname, 'map', 15);
+            var audio = document.getElementById('loading-music');
+            if (audio && volume !== undefined) {
+                audio.volume = volume; 
+            }
+        }
+        
+        function SetStatusChanged(status) {
+            document.getElementById('status-box').className = "dots-enabled";
+            document.getElementById('status').innerHTML = status;
+        }
+        
+        function DownloadingFile(filename) {
+            document.getElementById('status-box').className = "dots-enabled";
+            document.getElementById('status').innerHTML = "Загрузка контента";
+            typeWriterEffect(document.getElementById('map'), filename, 'map', 12);
+        }
+    </script>
+</body>
+</html>
