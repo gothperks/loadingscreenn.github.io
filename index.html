@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Localka-Box Loading Screen</title>
-    <!-- Добавили ?v=2 для принудительного сброса кэша -->
-    <link rel="stylesheet" href="style.css?v=2">
+    <!-- Версия v=4 для полной очистки кэша игры -->
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -29,9 +29,7 @@
 
     <!-- Тексты загрузки от Garry's Mod внизу экрана -->
     <div class="gmod-status">
-        <!-- Контейнер для статуса с поддержкой точек -->
-        <div id="status-box" class="dots-disabled"><span id="status"></span></div>
-        <!-- Карта и аддоны -->
+        <div id="status"></div>
         <div id="map"></div>
     </div>
 
@@ -39,7 +37,6 @@
         var audio = document.getElementById('loading-music');
         var btn = document.getElementById('mute-btn');
 
-        // Обход блокировки автоплея в Chromium: музыка включится при первом движении мыши в GMod
         function initAudioAutoplay() {
             if (audio) {
                 audio.play().then(function() {
@@ -65,7 +62,6 @@
 
         var mapTimer = null;
 
-        // Эффект печати (оставлен ТОЛЬКО для плавного появления названия карты при старте)
         function typeWriterEffect(element, text, speed) {
             if (element.getAttribute('data-current-text') === text) return;
             element.setAttribute('data-current-text', text);
@@ -84,14 +80,11 @@
             }, speed);
         }
 
-        // Стартовое состояние при заходе
         window.onload = function() {
             document.getElementById('status').innerHTML = "Подключение к серверу";
-            document.getElementById('status-box').className = "dots-enabled";
             typeWriterEffect(document.getElementById('map'), "Загрузка карты", 25);
         };
 
-        // Автоматически вызывается Garry's Mod при старте
         function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume) {
             typeWriterEffect(document.getElementById('map'), "Карта: " + mapname, 15);
             if (audio && volume !== undefined) {
@@ -99,18 +92,14 @@
             }
         }
         
-        // Быстрое обновление статуса (без ломающих анимаций)
         function SetStatusChanged(status) {
             var statusElem = document.getElementById('status');
             if (statusElem.innerHTML !== status) {
-                document.getElementById('status-box').className = "dots-enabled";
                 statusElem.innerHTML = status;
             }
         }
         
-        // Отображение файлов теперь мгновенное, без ломающегося эффекта печати
         function DownloadingFile(filename) {
-            document.getElementById('status-box').className = "dots-enabled";
             document.getElementById('status').innerHTML = "Загрузка контента";
             
             var cleanName = filename.replace(/^downloads\//, "").replace(/"/g, "");
