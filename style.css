@@ -77,6 +77,8 @@ body {
     color: #ffffff;
 }
 
+/* ИСПРАВЛЕНО: Полностью удалены стили и анимация loadingDots для точек */
+
 /* ПОЛУПРОЗРАЧНАЯ КНОПКА МУЗЫКИ В УГЛУ */
 #mute-btn {
     position: absolute;
@@ -134,16 +136,16 @@ body {
 
 /* --- ВСЕ АНИМАЦИИ --- */
 
-/* ОБЩАЯ АНИМАЦИЯ: Плавное проявление из размытия для логотипа и для нижнего текста */
+/* ОБЩАЯ АНИМАЦИЯ: Плавное проявление из размытия */
 @keyframes mainBlockFadeIn {
     0% {
         opacity: 0;
-        filter: blur(15px); /* Сильное размытие на старте */
-        transform: scale(0.95); /* Слегка отдален */
+        filter: blur(15px);
+        transform: scale(0.95);
     }
     100% {
         opacity: 1;
-        filter: blur(0px); /* Полная четкость */
-        transform: scale(1); /* Стандартный масштаб */
+        filter: blur(0px);
+        transform: scale(1);
     }
 }
