@@ -3,116 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Localka-Box Loading Screen</title>
-    <!-- Версия v=6 для сброса кэша игры -->
-    <link rel="stylesheet" href="style.css?v=6">
+    <title>LCB City Loading Screen</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0d0e12; 
+            color: #ffffff;
+            font-family: 'Bahnschrift', 'DIN Pro', 'Segoe UI', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.35;
+        }
+
+        .vignette {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.07) 0%, rgba(13, 14, 18, 0.2) 65%, rgba(13, 14, 18, 0.95) 100%);
+        }
+
+        .main-panel {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 560px; 
+        }
+
+        .brand-holder {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px; 
+        }
+
+        .logo-box img {
+            height: 130px; 
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0px 5px 14px rgba(0, 0, 0, 0.6));
+        }
+
+        .brand-dash {
+            font-size: 78px; 
+            font-weight: 600;
+            line-height: 1;
+            margin-left: 16px;  
+            margin-right: 13px; 
+            text-shadow: 0px 5px 14px rgba(0, 0, 0, 0.6);
+            opacity: 0.9;
+            transform: translateY(-5px); 
+        }
+
+        .text-city {
+            font-size: 78px; 
+            font-weight: 600; 
+            letter-spacing: -1.5px;
+            line-height: 1;
+            text-shadow: 0px 5px 14px rgba(0, 0, 0, 0.75), 0px 0px 22px rgba(255, 255, 255, 0.05);
+        }
+
+        .loading-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .progress-line-bg {
+            width: 100%;
+            height: 2px; 
+            background-color: rgba(255, 255, 255, 0.1); 
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-line-fill {
+            height: 100%;
+            width: 0%; 
+            background-color: #ffffff; 
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.6); 
+            transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1); 
+        }
+
+        .status-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px; 
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        #status-msg {
+            max-width: 80%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* НАДПИСЬ В УГЛУ СТАЛА ЧУТЬ БОЛЬШЕ И ЗАМЕТНЕЕ */
+        .footer-navigation {
+            position: absolute;
+            bottom: 40px;
+            right: 50px;
+            z-index: 10;
+            font-size: 15px; /* Увеличено с 12px */
+            font-weight: 500; /* Сделано чуть плотнее */
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.45);
+            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Фоновая музыка -->
-    <audio id="loading-music" src="scp.mp3" autoplay loop></audio>
+    <!-- Скрытый аудиоплеер для фоновой музыки -->
+    <audio id="bg-audio" src="bg-music.mp3" loop></audio>
 
-    <!-- Главный блок строго по центру экрана -->
-    <div class="main-center-block">
-        <h1 class="server-title">Localka-Box</h1>
-        <img class="server-logo" src="lcb.png" alt="Logo">
+    <canvas id="bg-particles"></canvas>
+    <div class="vignette"></div>
+
+    <div class="main-panel">
+        <div class="brand-holder">
+            <div class="logo-box">
+                <img src="lcb.png" alt="" onerror="this.style.display='none'; document.getElementById('text-fallback').style.display='inline-block';">
+                <span id="text-fallback" style="display:none; font-size:54px; font-weight:700; margin-right:12px;">LCB</span>
+            </div>
+            
+            <div class="brand-dash">-</div>
+            <div class="text-city">City</div>
+        </div>
+
+        <div class="loading-wrapper">
+            <div class="progress-line-bg">
+                <div class="progress-line-fill" id="gmod-bar"></div>
+            </div>
+            <div class="status-info">
+                <div id="status-msg">Запуск интерфейса...</div>
+                <div id="status-pct">0%</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Тексты загрузки от Garry's Mod внизу экрана -->
-    <div class="gmod-status">
-        <div id="status"></div>
-        <div id="map"></div>
+    <!-- Обновленная ссылка в углу -->
+    <div class="footer-navigation">
+        Localka-Box Discord: discord.gg/Pukt9syQXW
     </div>
 
     <script>
-        var audio = document.getElementById('loading-music');
-        var btn = document.getElementById('mute-btn'); // Эта кнопка не существует в HTML, но переменная объявлена
+        window.addEventListener('DOMContentLoaded', () => {
+            const audio = document.getElementById('bg-audio');
+            audio.volume = 0.3; 
+            audio.play().catch(error => {
+                console.log("Автовоспроизведение заблокировано.");
+            });
+        });
 
-        function initAudioAutoplay() {
-            if (audio) {
-                audio.play().then(function() {
-                    window.removeEventListener('mousemove', initAudioAutoplay);
-                }).catch(function(e) {
-                    console.log("Автоплей заблокирован, ждем движения мыши...");
-                });
-            }
+        const canvas = document.getElementById('bg-particles');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particleCount = 80; 
+        const particles = [];
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                length: Math.random() * 8 + 6,  
+                speed: Math.random() * 0.7 + 0.4 
+            });
         }
-        window.addEventListener('mousemove', initAudioAutoplay);
 
-        function toggleMusic() {
-            if (!audio) return;
-            if (audio.muted) {
-                audio.muted = false;
-                audio.play();
-                btn.classList.remove('muted');
-            } else {
-                audio.muted = true;
-                btn.classList.add('muted');
-            }
-        }
+        function drawParticles() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)'; 
+            ctx.lineWidth = 1;
 
-        var mapTimer = null; // Таймер для typewriter эффекта на 'map' элементе
+            for (let i = 0; i < particleCount; i++) {
+                const p = particles[i];
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x, p.y + p.length); 
+                ctx.stroke();
 
-        function typeWriterEffect(element, text, speed) {
-            // Если это не 'map' элемент, просто устанавливаем текст без эффекта печатной машинки
-            if (element.id !== 'map') {
-                element.innerHTML = text;
-                return;
-            }
+                p.y += p.speed;
 
-            // Проверяем, не является ли новый текст тем же, что уже печатается или установлен
-            if (element.getAttribute('data-current-text') === text) {
-                return; // Не перезапускаем эффект, если текст тот же
-            }
-            element.setAttribute('data-current-text', text); // Сохраняем текст, который должен быть установлен
-            
-            clearInterval(mapTimer); // Очищаем любой предыдущий typewriter эффект на 'map' элементе
-            element.innerHTML = ""; // Очищаем текущее содержимое
-            
-            var i = 0;
-            mapTimer = setInterval(function() {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i);
-                    i++;
-                } else {
-                    clearInterval(mapTimer);
-                    mapTimer = null; // Обнуляем таймер после завершения
+                if (p.y > height) {
+                    p.y = -15;
+                    p.x = Math.random() * width;
                 }
-            }, speed);
+            }
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+
+        function SetFilesNeeded(needed) {
+            window.totalFiles = needed;
+            window.filesLeft = needed;
         }
 
-        window.onload = function() {
-            // Изначально верхняя строка показывает подключение
-            document.getElementById('status').innerHTML = "Подключение к серверу";
-            // Изначально нижняя строка показывает "Загрузка карты" с эффектом
-            typeWriterEffect(document.getElementById('map'), "Загрузка карты", 25);
-        };
+        function DownloadingFile(fileName) {
+            const audio = document.getElementById('bg-audio');
+            if (audio && audio.paused) { audio.play(); }
 
-        function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume) {
-            // ОБНОВЛЕНО: Этот блок всегда устанавливает название карты в элемент 'map'
-            typeWriterEffect(document.getElementById('map'), "Карта: " + mapname, 15);
+            let cleanName = fileName.replace(/^.+\//, '');
+            document.getElementById('status-msg').innerText = `Загрузка: ${cleanName}`;
             
-            if (audio && volume !== undefined) {
-                audio.volume = volume; 
+            if(window.filesLeft && window.filesLeft > 0) {
+                window.filesLeft--;
+                let percent = Math.floor(((window.totalFiles - window.filesLeft) / window.totalFiles) * 100);
+                if (percent > 100) percent = 100;
+                
+                document.getElementById('gmod-bar').style.width = percent + '%';
+                document.getElementById('status-pct').innerText = percent + '%';
             }
         }
-        
+
         function SetStatusChanged(status) {
-            var statusElem = document.getElementById('status');
-            var cleanStatus = status.replace(/\.+$/, ""); // Удаляем завершающие точки
-
-            // Обновляем статус только если он изменился, без typewriter эффекта
-            if (statusElem.innerHTML !== cleanStatus) {
-                statusElem.innerHTML = cleanStatus;
-            }
-        }
-        
-        function DownloadingFile(filename) {
-            var cleanName = filename.replace(/^downloads\//, "").replace(/"/g, "");
-            
-            // ИСПРАВЛЕНО: Теперь 'status' показывает, что именно скачивается.
-            // Элемент 'map' (с названием карты) остается нетронутым.
-            document.getElementById('status').innerHTML = "Скачивание: " + cleanName;
+            document.getElementById('status-msg').innerText = status;
+            const audio = document.getElementById('bg-audio');
+            if (audio && audio.paused) { audio.play(); }
         }
     </script>
 </body>
